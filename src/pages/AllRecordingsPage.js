@@ -1,5 +1,5 @@
-import React, { useState, useRef } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 import { Grid, Container, Typography, Paper, Box, Button } from '@mui/material';
 
 const videoUrl = 'http://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4';
@@ -37,18 +37,17 @@ const videoBorderStyle = {
   backgroundColor: '#e7e7e7',
 };
 
-export default function ProductsPage() {
-  const [selectedRoom, setSelectedRoom] = useState('room1');
-  const containerRef = useRef(null);
+export default function AllRecordingsPage() {
+  const [recordings, setRecordings] = useState([]);
+  const { room } = useParams();
 
-  const handleRoomSelect = (room) => {
-    setSelectedRoom(room);
-    containerRef.current.scrollLeft = 0;
-  };
+  useEffect(() => {
+    setRecordings(videoData[room]);
+  }, [room]);
 
-  const generateVideoElements = (room) =>
-    videoData[room].map((recording, index) => (
-      <div key={index} style={{ width: '300px', marginRight: '10px', flexShrink: 0 }}>
+  const generateVideoElements = () =>
+    recordings.map((recording, index) => (
+      <Grid item xs={3} key={index}>
         <Paper elevation={3} style={videoBorderStyle}>
           <video className="video" autoPlay controls muted style={{ height: '200px', width: '100%' }}>
             <source src={videoUrl} type="video/mp4" />
@@ -58,41 +57,18 @@ export default function ProductsPage() {
             {recording}
           </Typography>
         </Paper>
-      </div>
+      </Grid>
     ));
-
-  const roomOptions = Object.keys(videoData);
 
   return (
     <>
       <Container maxWidth="xl">
         <Typography variant="h4" sx={{ mb: 3 }}>
-          Recordings
+          All Recordings of {room}
         </Typography>
-        {roomOptions.map((room) => (
-          <div key={room}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-              <Typography variant="h6" sx={{ flexGrow: 1 }}>
-                {room}
-              </Typography>
-              <Link to={`/dashboard/all-recordings/${room}`}>
-                <Button variant="outlined" size="small" sx={{ mr: 2 }}>
-                  View All
-                </Button>
-              </Link>
-            </Box>
-            <div
-              style={{
-                display: 'flex',
-                overflowX: 'hidden',
-                marginBottom: '20px',
-              }}
-              ref={containerRef}
-            >
-              {generateVideoElements(room)}
-            </div>
-          </div>
-        ))}
+        <Grid container spacing={2}>
+          {generateVideoElements()}
+        </Grid>
       </Container>
     </>
   );
